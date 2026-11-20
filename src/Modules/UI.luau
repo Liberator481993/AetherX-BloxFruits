@@ -161,6 +161,11 @@ local function addAction(parent, title, description, buttonText, callback)
 end
 
 function UI.Mount(config)
+    assert(type(config) == "table", "UI.Mount expects a configuration table")
+    assert(type(config.OnFruitEspChanged) == "function", "OnFruitEspChanged callback is required")
+    assert(type(config.OnFruitScan) == "function", "OnFruitScan callback is required")
+    assert(type(config.GetDiagnostics) == "function", "GetDiagnostics callback is required")
+
     local player = Players.LocalPlayer
     local playerGui = player:WaitForChild("PlayerGui")
     local old = playerGui:FindFirstChild("AetherX")
