@@ -52,7 +52,34 @@ function FruitScanner.new()
         AddedConnection = nil,
         RemovingConnection = nil,
         OnDetected = nil,
+        Pending = setmetatable({}, { __mode = "k" }),
     }, FruitScanner)
+end
+
+local function findFruitCandidate(instance)
+    local cursor = instance
+    while cursor and cursor ~= Workspace do
+        if cursor:IsA("Model") then
+            local normalized = normalizeName(cursor.Name)
+            if FRUIT_NAMES[normalized] == true or normalized == "fruit" then
+                return cursor
+            end
+        end
+        cursor = cursor.Parent
+    end
+    return nil
+end
+
+function FruitScanner:_queueAdd(instance)
+    local model = findFruitCandidate(instance)
+    if not model or self.Pending[model] then return end
+    self.Pending[model] = true
+    task.defer(function()
+        self.Pending[model] = nil
+        if self.Enabled and model.Parent then
+            self:_add(model)
+        end
+    end)
 end
 
 function FruitScanner:_remove(model)
@@ -61,6 +88,7 @@ function FruitScanner:_remove(model)
     if marker.Highlight then marker.Highlight:Destroy() end
     if marker.Billboard then marker.Billboard:Destroy() end
     self.Markers[model] = nil
+    self.Pending[model] = nil
 end
 
 function FruitScanner:_add(model)
@@ -127,9 +155,9 @@ function FruitScanner:SetEnabled(enabled)
     if self.Enabled then
         if not self.AddedConnection then
             self.AddedConnection = Workspace.DescendantAdded:Connect(function(instance)
-                if isFruitModel(instance) then
-                    task.defer(function() self:_add(instance) end)
-                end
+                -- Replication may add the Model before its BasePart descendants.
+                -- Retry when any descendant arrives so a late Handle/Part is detected.
+                self:_queueAdd(instance)
             end)
         end
         if not self.RemovingConnection then
