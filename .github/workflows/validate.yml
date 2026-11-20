@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  rojo-build:
-    name: Validate Rojo project
+  validate:
+    name: Luau syntax and Rojo build
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -21,7 +21,26 @@ jobs:
       - name: Install project toolchain
         uses: CompeyDev/setup-rokit@v0.2.1
 
-      - name: Build project
+      - name: Install pinned Luau compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 https://github.com/luau-lang/luau/releases/download/0.747/luau-ubuntu.zip --output /tmp/luau.zip
+          mkdir -p /tmp/luau
+          unzip -q /tmp/luau.zip -d /tmp/luau
+          chmod +x /tmp/luau/luau-compile
+          echo "/tmp/luau" >> "$GITHUB_PATH"
+
+      - name: Compile every Luau source file
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            echo "Compiling $file"
+            luau-compile "$file" >/dev/null
+          done < <(find src -type f -name '*.luau' -print0)
+
+      - name: Build project with Rojo
         run: rojo build default.project.json -o /tmp/AetherX.rbxlx
 
       - name: Verify build artifact
