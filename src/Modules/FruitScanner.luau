@@ -23,7 +23,6 @@ end
 local function isFruitModel(instance)
     if not instance:IsA("Model") then return false end
     local normalized = normalizeName(instance.Name)
-    if FRUIT_NAMES[normalized] == true then return true end
 
     if normalized == "fruit" then
         for _, child in ipairs(instance:GetChildren()) do
@@ -31,8 +30,21 @@ local function isFruitModel(instance)
                 return true
             end
         end
+        return false
     end
-    return false
+
+    if FRUIT_NAMES[normalized] ~= true then return false end
+
+    -- If the game wraps the named fruit model in a generic "Fruit" model,
+    -- mark the wrapper only; otherwise the same pickup receives two ESPs.
+    local ancestor = instance.Parent
+    while ancestor and ancestor ~= Workspace do
+        if ancestor:IsA("Model") and normalizeName(ancestor.Name) == "fruit" then
+            return false
+        end
+        ancestor = ancestor.Parent
+    end
+    return true
 end
 
 local function getLabelName(model)
@@ -59,16 +71,19 @@ end
 
 local function findFruitCandidate(instance)
     local cursor = instance
+    local namedFruitModel = nil
     while cursor and cursor ~= Workspace do
         if cursor:IsA("Model") then
             local normalized = normalizeName(cursor.Name)
-            if FRUIT_NAMES[normalized] == true or normalized == "fruit" then
+            if normalized == "fruit" then
                 return cursor
+            elseif FRUIT_NAMES[normalized] == true then
+                namedFruitModel = cursor
             end
         end
         cursor = cursor.Parent
     end
-    return nil
+    return namedFruitModel
 end
 
 function FruitScanner:_queueAdd(instance)
