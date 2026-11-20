@@ -4,13 +4,14 @@ local FruitScanner = {}
 FruitScanner.__index = FruitScanner
 
 local FRUIT_NAMES = {
-    bomb=true, spike=true, chop=true, spring=true, spin=true, flame=true,
-    falcon=true, ice=true, sand=true, dark=true, diamond=true, light=true,
-    rubber=true, barrier=true, ghost=true, magma=true, quake=true, buddha=true,
-    love=true, spider=true, sound=true, phoenix=true, portal=true, rumble=true,
-    pain=true, blizzard=true, gravity=true, mammoth=true, trex=true, dough=true,
-    shadow=true, venom=true, control=true, spirit=true, dragon=true, leopard=true,
-    kitsune=true,
+    rocket=true, spin=true, blade=true, spring=true, bomb=true, smoke=true,
+    spike=true, flame=true, ice=true, sand=true, dark=true, eagle=true,
+    diamond=true, light=true, rubber=true, ghost=true, magma=true, quake=true,
+    buddha=true, love=true, creation=true, spider=true, sound=true, phoenix=true,
+    portal=true, lightning=true, pain=true, blizzard=true, gravity=true,
+    mammoth=true, trex=true, dough=true, shadow=true, venom=true, gas=true,
+    spirit=true, tiger=true, yeti=true, magnet=true, kitsune=true, control=true,
+    dragon=true,
 }
 
 local MAX_MARKERS = 20
