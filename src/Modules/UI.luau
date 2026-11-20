@@ -204,6 +204,7 @@ function UI.Mount(config)
 
     local scale = make("UIScale", {Scale = 1}, main)
     local sidebarWidth = D.SidebarWidth
+    local sidebar, content
     local function resize()
         local camera = Workspace.CurrentCamera
         if not camera then return end
@@ -218,7 +219,6 @@ function UI.Mount(config)
         content.Position = UDim2.fromOffset(sidebarWidth, D.HeaderHeight)
         content.Size = UDim2.new(1, -sidebarWidth, 1, -D.HeaderHeight)
     end
-    resize()
     local viewportConnection
     local cameraConnection
     local function bindCamera()
@@ -274,7 +274,7 @@ function UI.Mount(config)
     }, header)
     round(close, 10)
 
-    local sidebar = make("Frame", {
+    sidebar = make("Frame", {
         Position = UDim2.fromOffset(0, D.HeaderHeight),
         Size = UDim2.new(0, D.SidebarWidth, 1, -D.HeaderHeight),
         BackgroundColor3 = C.Surface,
@@ -290,12 +290,14 @@ function UI.Mount(config)
         PaddingRight = UDim.new(0, 12)
     }, sidebar)
 
-    local content = make("Frame", {
+    content = make("Frame", {
         Position = UDim2.fromOffset(sidebarWidth, D.HeaderHeight),
         Size = UDim2.new(1, -sidebarWidth, 1, -D.HeaderHeight),
         BackgroundTransparency = 1,
         ClipsDescendants = true
     }, main)
+
+    resize()
 
     local pageNames = {"Overview", "Fruits", "Farm", "Settings", "Diagnostics"}
     local icons = {Overview = "⌂", Fruits = "✦", Farm = "⚔", Settings = "⚙", Diagnostics = "⌁"}
