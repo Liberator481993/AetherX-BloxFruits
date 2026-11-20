@@ -1,0 +1,13 @@
+{
+  "name": "AetherX-BloxFruits",
+  "tree": {
+    "$className": "DataModel",
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "AetherX": { "$path": "src" }
+      }
+    }
+  }
+}
