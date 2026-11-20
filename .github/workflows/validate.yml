@@ -45,3 +45,11 @@ jobs:
 
       - name: Verify build artifact
         run: test -s /tmp/AetherX.rbxlx
+
+      - name: Upload Roblox project build
+        uses: actions/upload-artifact@v4
+        with:
+          name: AetherX-Rojo-build
+          path: /tmp/AetherX.rbxlx
+          if-no-files-found: error
+          retention-days: 7
