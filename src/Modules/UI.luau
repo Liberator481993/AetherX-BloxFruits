@@ -421,7 +421,7 @@ function UI.Mount(config)
             dragInput = input
         end
     end)
-    UserInputService.InputChanged:Connect(function(input)
+    local inputChangedConnection = UserInputService.InputChanged:Connect(function(input)
         if dragging and (input == dragInput or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             main.Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + delta.X, startPosition.Y.Scale, startPosition.Y.Offset + delta.Y)
@@ -445,6 +445,7 @@ function UI.Mount(config)
     screen.Destroying:Connect(function()
         if viewportConnection then viewportConnection:Disconnect() end
         if cameraConnection then cameraConnection:Disconnect() end
+        if inputChangedConnection then inputChangedConnection:Disconnect() end
     end)
 
     return {
