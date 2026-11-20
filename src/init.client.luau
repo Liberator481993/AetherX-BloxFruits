@@ -45,12 +45,10 @@ local mounted = UI.Mount({
     end,
 })
 
-local player = Players.LocalPlayer
-player.CharacterRemoving:Connect(function()
-    -- Fruit models are world objects; keep scanner state while the character respawns.
-end)
-
+local cleaned = false
 mounted.Screen.Destroying:Connect(function()
+    if cleaned then return end
+    cleaned = true
     scanner:Destroy()
 end)
 
