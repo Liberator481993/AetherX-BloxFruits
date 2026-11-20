@@ -50,6 +50,7 @@ function FruitScanner.new()
         Enabled = false,
         Markers = {},
         AddedConnection = nil,
+        RemovingConnection = nil,
         OnDetected = nil,
     }, FruitScanner)
 end
@@ -131,6 +132,13 @@ function FruitScanner:SetEnabled(enabled)
                 end
             end)
         end
+        if not self.RemovingConnection then
+            self.RemovingConnection = Workspace.DescendantRemoving:Connect(function(instance)
+                if instance:IsA("Model") then
+                    self:_remove(instance)
+                end
+            end)
+        end
         return self:Scan()
     end
 
@@ -140,6 +148,10 @@ function FruitScanner:SetEnabled(enabled)
     if self.AddedConnection then
         self.AddedConnection:Disconnect()
         self.AddedConnection = nil
+    end
+    if self.RemovingConnection then
+        self.RemovingConnection:Disconnect()
+        self.RemovingConnection = nil
     end
     return 0
 end
