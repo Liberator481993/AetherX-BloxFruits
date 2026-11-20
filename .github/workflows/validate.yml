@@ -18,13 +18,8 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install Rokit
+      - name: Install project toolchain
         uses: CompeyDev/setup-rokit@v0.2.1
-
-      - name: Install Rojo
-        run: |
-          rokit add rojo-rbx/rojo
-          rokit install
 
       - name: Build project
         run: rojo build default.project.json -o /tmp/AetherX.rbxlx
