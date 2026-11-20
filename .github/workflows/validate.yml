@@ -1,0 +1,30 @@
+name: Validate AETHER X
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rojo-build:
+    name: Validate Rojo project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Rojo
+        uses: rojo-rbx/setup-rojo@v1
+        with:
+          version: "7.5.1"
+
+      - name: Build project
+        run: rojo build default.project.json -o /tmp/AetherX.rbxlx
+
+      - name: Verify build artifact
+        run: test -s /tmp/AetherX.rbxlx
