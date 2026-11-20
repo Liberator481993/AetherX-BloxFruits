@@ -3,25 +3,50 @@
 A modular Luau client-side hub project with a mobile-first interface.
 
 ## Project status
-**Early foundation / v0.2.0-dev.** The responsive interface, navigation, diagnostics, and conservative fruit-ESP module are in the repository. Gameplay automation is not included until each feature has a clear implementation and test plan.
+
+**Early foundation / v0.2.0-dev.** The repository currently contains the responsive interface, navigation, diagnostics, and an opt-in fruit ESP scanner. Gameplay automation is intentionally not included until each feature has a clear implementation and test plan.
 
 ## Structure
-- `src/init.client.luau` — entry point
+
+- `src/init.client.luau` — entry point and module wiring
 - `src/Modules/Theme.luau` — shared palette and dimensions
 - `src/Modules/UI.luau` — responsive draggable hub interface
-- `src/Modules/FruitScanner.luau` — opt-in fruit model highlighting
+- `src/Modules/FruitScanner.luau` — opt-in fruit allowlist, streaming-aware detection, marker cleanup
 - `src/Modules/Diagnostics.luau` — runtime status snapshot
 - `default.project.json` — Rojo project mapping
+- `rokit.toml` — pinned Rojo toolchain
 
 ## Build
-Install Rojo, then run:
+
+Install the project tools with Rokit, then run:
 
 ```sh
-rojo build -o AetherX.rbxlx
+rojo build default.project.json -o AetherX.rbxlx
 ```
 
-## Validation
-The repository is the source of truth. A successful GitHub commit does not mean the code has been compiled in Roblox Studio or tested in an executor. Those checks must be performed separately.
+## Automated validation
+
+GitHub Actions runs on pushes and pull requests to `main`. It:
+
+1. Installs the pinned Luau compiler (0.747).
+2. Compiles every `.luau` source file to catch syntax errors.
+3. Builds the Rojo project.
+4. Verifies that the build artifact is non-empty.
+
+A successful workflow confirms syntax and project packaging only. It does not simulate Roblox services or prove executor compatibility.
+
+## Required in-game validation before closing the foundation stage
+
+- Launch the project in a live Roblox client and confirm the UI mounts without errors.
+- Test every navigation tab, close/reopen launcher, and touch/mouse dragging.
+- Check layout scaling on a narrow mobile viewport and a desktop viewport.
+- Enable Fruit ESP near a known dropped fruit and confirm exactly one marker appears.
+- Disable Fruit ESP and confirm all markers and scanner connections are cleaned up.
+- Confirm ordinary map objects and NPCs do not receive fruit markers.
+- Test fruit replication after the initial scan and verify detection still occurs.
+- Respawn the character and confirm the UI/scanner lifecycle remains stable.
+- Run Diagnostics and verify the displayed client state is accurate.
 
 ## Compatibility
-Designed with touch and mouse input in mind. Executor compatibility is not guaranteed; the project avoids depending on executor-specific APIs.
+
+The source is structured as a Rojo client project. It is not yet a standalone executor `loadstring` bundle. Executor packaging and direct testing on Delta Android / Arceus X are separate validation tasks; compatibility is not claimed until those tests are performed.
