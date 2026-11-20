@@ -203,15 +203,20 @@ function UI.Mount(config)
     outline(main, C.Border, 0.2)
 
     local scale = make("UIScale", {Scale = 1}, main)
+    local sidebarWidth = D.SidebarWidth
     local function resize()
         local camera = Workspace.CurrentCamera
         if not camera then return end
         local viewport = camera.ViewportSize
-        local width = math.min(D.DesktopWidth, math.max(D.MobileWidth, viewport.X - 24))
-        local height = math.min(D.DesktopHeight, math.max(330, viewport.Y - 100))
-        local factor = math.min(width / D.DesktopWidth, height / D.DesktopHeight, 1)
-        scale.Scale = factor
-        main.Size = UDim2.fromOffset(D.DesktopWidth, D.DesktopHeight)
+        local compact = viewport.X < 600 or viewport.Y < 460
+        local baseWidth = compact and D.MobileWidth or D.DesktopWidth
+        local baseHeight = compact and D.MobileHeight or D.DesktopHeight
+        sidebarWidth = compact and 112 or D.SidebarWidth
+        scale.Scale = math.min((viewport.X - 20) / baseWidth, (viewport.Y - 76) / baseHeight, 1)
+        main.Size = UDim2.fromOffset(baseWidth, baseHeight)
+        sidebar.Size = UDim2.new(0, sidebarWidth, 1, -D.HeaderHeight)
+        content.Position = UDim2.fromOffset(sidebarWidth, D.HeaderHeight)
+        content.Size = UDim2.new(1, -sidebarWidth, 1, -D.HeaderHeight)
     end
     resize()
     local viewportConnection
@@ -286,8 +291,8 @@ function UI.Mount(config)
     }, sidebar)
 
     local content = make("Frame", {
-        Position = UDim2.fromOffset(D.SidebarWidth, D.HeaderHeight),
-        Size = UDim2.new(1, -D.SidebarWidth, 1, -D.HeaderHeight),
+        Position = UDim2.fromOffset(sidebarWidth, D.HeaderHeight),
+        Size = UDim2.new(1, -sidebarWidth, 1, -D.HeaderHeight),
         BackgroundTransparency = 1,
         ClipsDescendants = true
     }, main)
