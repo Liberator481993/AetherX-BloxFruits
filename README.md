@@ -13,6 +13,12 @@ A modular Luau client-side hub project with a mobile-first interface.
 - `src/Modules/UI.luau` — responsive draggable hub interface
 - `src/Modules/FruitScanner.luau` — opt-in fruit allowlist, streaming-aware detection, marker cleanup
 - `src/Modules/Diagnostics.luau` — runtime status snapshot
+
+## Interface behavior
+
+- Navigation includes hover feedback and a short slide-in transition when switching pages.
+- The main window can be dragged with touch or mouse and is clamped to the visible viewport.
+- The header status reports `UI ONLINE`; it does not imply that gameplay automation modules are complete.
 - `default.project.json` — Rojo project mapping
 - `rokit.toml` — pinned Rojo toolchain
 
