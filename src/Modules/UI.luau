@@ -82,6 +82,9 @@ local function createPage(parent, name)
         BorderSizePixel = 0,
         ScrollBarThickness = 4,
         ScrollBarImageColor3 = C.Violet,
+        ScrollBarImageTransparency = 0.18,
+        ScrollingDirection = Enum.ScrollingDirection.Y,
+        ElasticBehavior = Enum.ElasticBehavior.WhenScrollable,
         CanvasSize = UDim2.new(),
         Visible = false
     }, parent)
@@ -119,15 +122,27 @@ local function addInfo(parent, title, description, height)
     local desc = label(box, description, 10, UDim2.fromOffset(15, 33), UDim2.new(1, -30, 0, (height or 70) - 39), Theme.Font.Body, C.Muted)
     desc.TextWrapped = true
     desc.TextYAlignment = Enum.TextYAlignment.Top
+    local accent = make("Frame", {
+        Position = UDim2.fromOffset(0, 12),
+        Size = UDim2.new(0, 3, 1, -24),
+        BackgroundColor3 = C.Violet,
+        BackgroundTransparency = 0.28,
+        BorderSizePixel = 0
+    }, box)
+    round(accent, 3)
     return box
 end
 
 local function addToggle(parent, title, description, initial, callback)
     local box = card(parent, 72)
     local titleLabel = label(box, title, 12, UDim2.fromOffset(15, 10), UDim2.new(1, -100, 0, 20), Theme.Font.Strong)
-    local descriptionLabel = label(box, description, 9, UDim2.fromOffset(15, 35), UDim2.new(1, -105, 0, 18), Theme.Font.Body, C.Muted)
+    local descriptionLabel = label(box, description, 9, UDim2.fromOffset(15, 35), UDim2.new(1, -145, 0, 18), Theme.Font.Body, C.Muted)
     descriptionLabel.TextWrapped = true
     descriptionLabel.TextYAlignment = Enum.TextYAlignment.Top
+    local stateLabel = label(box, initial and "ON" or "OFF", 9,
+        UDim2.new(1, -108, 0.5, -8), UDim2.fromOffset(35, 16),
+        Theme.Font.Strong, initial and C.Cyan or C.Muted)
+    stateLabel.TextXAlignment = Enum.TextXAlignment.Center
 
     local track = make("TextButton", {
         AnchorPoint = Vector2.new(1, 0.5),
@@ -152,13 +167,15 @@ local function addToggle(parent, title, description, initial, callback)
             titleLabel.Size = UDim2.new(1, -30, 0, 20)
             descriptionLabel.Position = UDim2.fromOffset(15, 34)
             descriptionLabel.Size = UDim2.new(1, -30, 0, 32)
+            stateLabel.Position = UDim2.fromOffset(15, 78)
             track.AnchorPoint = Vector2.new(1, 1)
             track.Position = UDim2.new(1, -15, 1, -10)
         else
             box.Size = UDim2.new(1, 0, 0, 72)
-            titleLabel.Size = UDim2.new(1, -100, 0, 20)
+            titleLabel.Size = UDim2.new(1, -145, 0, 20)
             descriptionLabel.Position = UDim2.fromOffset(15, 35)
-            descriptionLabel.Size = UDim2.new(1, -105, 0, 18)
+            descriptionLabel.Size = UDim2.new(1, -145, 0, 18)
+            stateLabel.Position = UDim2.new(1, -108, 0.5, -8)
             track.AnchorPoint = Vector2.new(1, 0.5)
             track.Position = UDim2.new(1, -15, 0.5, 0)
         end
@@ -169,6 +186,8 @@ local function addToggle(parent, title, description, initial, callback)
     local value = initial == true
     local function setValue(nextValue)
         value = nextValue
+        stateLabel.Text = value and "ON" or "OFF"
+        stateLabel.TextColor3 = value and C.Cyan or C.Muted
         animate(track, 0.16, {BackgroundColor3 = value and C.Violet or C.SurfaceRaised})
         animate(knob, 0.16, {Position = value and UDim2.fromOffset(24, 3) or UDim2.fromOffset(3, 3)})
         callback(value)
@@ -516,7 +535,7 @@ function UI.Mount(config)
     -- Diagnostics page
     local diagnostics = pages.Diagnostics
     addSection(diagnostics, "Diagnostics", "Live runtime snapshot")
-    local diagCard = card(diagnostics, 176)
+    local diagCard = card(diagnostics, 220)
     local diagText = make("TextLabel", {
         BackgroundTransparency = 1,
         Position = UDim2.fromOffset(15, 13),
@@ -524,7 +543,7 @@ function UI.Mount(config)
         Font = Enum.Font.Code,
         Text = "Press RUN CHECK to collect client status.",
         TextColor3 = C.Muted,
-        TextSize = 10,
+        TextSize = 9,
         TextWrapped = true,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextYAlignment = Enum.TextYAlignment.Top
