@@ -311,6 +311,22 @@ function UI.Mount(config)
         scale.Scale = math.max(0.35, math.min(widthScale, heightScale, 1))
         main.Size = UDim2.fromOffset(baseWidth, baseHeight)
 
+        -- Keep a dragged window reachable after rotation or viewport changes.
+        local halfWidth = main.AbsoluteSize.X / 2
+        local halfHeight = main.AbsoluteSize.Y / 2
+        local minX = -viewport.X / 2 + halfWidth + 8
+        local maxX = viewport.X / 2 - halfWidth - 8
+        local minY = -viewport.Y / 2 + halfHeight + 8
+        local maxY = viewport.Y / 2 - halfHeight - 8
+        if minX > maxX then minX, maxX = 0, 0 end
+        if minY > maxY then minY, maxY = 0, 0 end
+        main.Position = UDim2.new(
+            main.Position.X.Scale,
+            math.clamp(main.Position.X.Offset, minX, maxX),
+            main.Position.Y.Scale,
+            math.clamp(main.Position.Y.Offset, minY, maxY)
+        )
+
         if sidebar then
             sidebar.Size = UDim2.new(0, sidebarWidth, 1, -D.HeaderHeight)
         end
