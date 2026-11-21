@@ -28,7 +28,13 @@ local function outline(parent, color, transparency)
     }, parent)
 end
 
+local reduceMotion = false
+
 local function animate(object, duration, properties)
+    if reduceMotion then
+        for key, value in pairs(properties) do object[key] = value end
+        return nil
+    end
     local tween = TweenService:Create(object, TweenInfo.new(duration, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), properties)
     tween:Play()
     return tween
@@ -74,23 +80,23 @@ local function createPage(parent, name)
         Size = UDim2.fromScale(1, 1),
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
-        ScrollBarThickness = 3,
+        ScrollBarThickness = 4,
         ScrollBarImageColor3 = C.Violet,
         CanvasSize = UDim2.new(),
         Visible = false
     }, parent)
     make("UIPadding", {
-        PaddingTop = UDim.new(0, 22),
-        PaddingBottom = UDim.new(0, 22),
-        PaddingLeft = UDim.new(0, 22),
-        PaddingRight = UDim.new(0, 22)
+        PaddingTop = UDim.new(0, 16),
+        PaddingBottom = UDim.new(0, 16),
+        PaddingLeft = UDim.new(0, 16),
+        PaddingRight = UDim.new(0, 16)
     }, page)
     local layout = make("UIListLayout", {
         Padding = UDim.new(0, 12),
         SortOrder = Enum.SortOrder.LayoutOrder
     }, page)
     layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        page.CanvasSize = UDim2.fromOffset(0, layout.AbsoluteContentSize.Y + 44)
+        page.CanvasSize = UDim2.fromOffset(0, layout.AbsoluteContentSize.Y + 32)
     end)
     return page
 end
@@ -180,7 +186,7 @@ local function addAction(parent, title, description, buttonText, callback)
     local button = make("TextButton", {
         AnchorPoint = Vector2.new(1, 0.5),
         Position = UDim2.new(1, -14, 0.5, 0),
-        Size = UDim2.fromOffset(104, 36),
+        Size = UDim2.fromOffset(112, 40),
         BackgroundColor3 = C.SurfaceRaised,
         Text = buttonText,
         TextColor3 = C.Text,
@@ -201,7 +207,7 @@ local function addAction(parent, title, description, buttonText, callback)
             descriptionLabel.Size = UDim2.new(1, -30, 0, 25)
             button.AnchorPoint = Vector2.new(1, 1)
             button.Position = UDim2.new(1, -14, 1, -9)
-            button.Size = UDim2.fromOffset(104, 34)
+            button.Size = UDim2.fromOffset(112, 40)
         else
             box.Size = UDim2.new(1, 0, 0, 74)
             titleLabel.Position = UDim2.fromOffset(15, 9)
@@ -210,7 +216,7 @@ local function addAction(parent, title, description, buttonText, callback)
             descriptionLabel.Size = UDim2.new(1, -142, 0, 25)
             button.AnchorPoint = Vector2.new(1, 0.5)
             button.Position = UDim2.new(1, -14, 0.5, 0)
-            button.Size = UDim2.fromOffset(104, 36)
+            button.Size = UDim2.fromOffset(112, 40)
         end
     end
     box:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateLayout)
@@ -501,6 +507,10 @@ function UI.Mount(config)
         main.Visible = true
         launcher.Visible = false
     end)
+    addToggle(settings, "Reduce animations", "Disable interface tweens for a calmer, lower-motion experience", false, function(enabled)
+        reduceMotion = enabled
+    end)
+    addInfo(settings, "Responsive layout", "Navigation automatically switches to icon-only mode on narrow screens. Pages remain scrollable when content is taller than the display.", 78)
     addInfo(settings, "Input", "Supports touch and mouse dragging. Use the close button to collapse the hub to the AX launcher.", 72)
 
     -- Diagnostics page
