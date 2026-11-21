@@ -142,8 +142,10 @@ end
 
 local function addAction(parent, title, description, buttonText, callback)
     local box = card(parent, 74)
-    label(box, title, 12, UDim2.fromOffset(15, 9), UDim2.new(1, -142, 0, 20), Theme.Font.Strong)
-    label(box, description, 9, UDim2.fromOffset(15, 34), UDim2.new(1, -142, 0, 25), Theme.Font.Body, C.Muted)
+    local titleLabel = label(box, title, 12, UDim2.fromOffset(15, 9), UDim2.new(1, -142, 0, 20), Theme.Font.Strong)
+    local descriptionLabel = label(box, description, 9, UDim2.fromOffset(15, 34), UDim2.new(1, -142, 0, 25), Theme.Font.Body, C.Muted)
+    descriptionLabel.TextWrapped = true
+
     local button = make("TextButton", {
         AnchorPoint = Vector2.new(1, 0.5),
         Position = UDim2.new(1, -14, 0.5, 0),
@@ -157,6 +159,30 @@ local function addAction(parent, title, description, buttonText, callback)
     }, box)
     round(button, 9)
     outline(button, C.Violet, 0.35)
+
+    local function updateLayout()
+        if box.AbsoluteSize.X < 280 then
+            box.Size = UDim2.new(1, 0, 0, 112)
+            titleLabel.Position = UDim2.fromOffset(15, 8)
+            titleLabel.Size = UDim2.new(1, -30, 0, 20)
+            descriptionLabel.Position = UDim2.fromOffset(15, 31)
+            descriptionLabel.Size = UDim2.new(1, -30, 0, 25)
+            button.AnchorPoint = Vector2.new(1, 1)
+            button.Position = UDim2.new(1, -14, 1, -9)
+            button.Size = UDim2.fromOffset(104, 34)
+        else
+            box.Size = UDim2.new(1, 0, 0, 74)
+            titleLabel.Position = UDim2.fromOffset(15, 9)
+            titleLabel.Size = UDim2.new(1, -142, 0, 20)
+            descriptionLabel.Position = UDim2.fromOffset(15, 34)
+            descriptionLabel.Size = UDim2.new(1, -142, 0, 25)
+            button.AnchorPoint = Vector2.new(1, 0.5)
+            button.Position = UDim2.new(1, -14, 0.5, 0)
+            button.Size = UDim2.fromOffset(104, 36)
+        end
+    end
+    box:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateLayout)
+    updateLayout()
     button.Activated:Connect(callback)
 end
 
