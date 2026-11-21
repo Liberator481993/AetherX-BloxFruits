@@ -355,7 +355,7 @@ function UI.Mount(config)
         BorderSizePixel = 0
     }, header)
     round(statusDot, 5)
-    statusText = label(header, "SYSTEM READY", 9, UDim2.new(1, -83, 0.5, -9), UDim2.fromOffset(75, 18), Theme.Font.Medium, C.Muted)
+    statusText = label(header, "UI ONLINE", 9, UDim2.new(1, -83, 0.5, -9), UDim2.fromOffset(75, 18), Theme.Font.Medium, C.Muted)
 
     local close = make("TextButton", {
         AnchorPoint = Vector2.new(1, 0.5),
@@ -582,6 +582,7 @@ function UI.Mount(config)
     navRefs.Overview.Button.BackgroundColor3 = C.SurfaceRaised
     navRefs.Overview.Indicator.BackgroundTransparency = 0
     navRefs.Overview.Label.TextColor3 = C.Text
+    navRefs.Overview.Icon.TextColor3 = C.Cyan
 
     screen.Destroying:Connect(function()
         if viewportConnection then viewportConnection:Disconnect() end
