@@ -210,19 +210,50 @@ function UI.Mount(config)
     local scale = make("UIScale", {Scale = 1}, main)
     local sidebarWidth = D.SidebarWidth
     local sidebar, content
+    local navRefs = {}
+    local compactMode = false
+    local brandTitle, brandSubtitle, statusDot, statusText
+
     local function resize()
         local camera = Workspace.CurrentCamera
         if not camera then return end
         local viewport = camera.ViewportSize
-        local compact = viewport.X < 600 or viewport.Y < 460
-        local baseWidth = compact and D.MobileWidth or D.DesktopWidth
-        local baseHeight = compact and D.MobileHeight or D.DesktopHeight
-        sidebarWidth = compact and 112 or D.SidebarWidth
-        scale.Scale = math.min((viewport.X - 20) / baseWidth, (viewport.Y - 76) / baseHeight, 1)
+        compactMode = viewport.X < 600 or viewport.Y < 460
+        local baseWidth = compactMode and D.MobileWidth or D.DesktopWidth
+        local baseHeight = compactMode and D.MobileHeight or D.DesktopHeight
+        sidebarWidth = compactMode and 112 or D.SidebarWidth
+
+        local widthScale = math.max(0, viewport.X - 20) / baseWidth
+        local heightScale = math.max(0, viewport.Y - 76) / baseHeight
+        scale.Scale = math.max(0.35, math.min(widthScale, heightScale, 1))
         main.Size = UDim2.fromOffset(baseWidth, baseHeight)
-        sidebar.Size = UDim2.new(0, sidebarWidth, 1, -D.HeaderHeight)
-        content.Position = UDim2.fromOffset(sidebarWidth, D.HeaderHeight)
-        content.Size = UDim2.new(1, -sidebarWidth, 1, -D.HeaderHeight)
+
+        if sidebar then
+            sidebar.Size = UDim2.new(0, sidebarWidth, 1, -D.HeaderHeight)
+        end
+        if content then
+            content.Position = UDim2.fromOffset(sidebarWidth, D.HeaderHeight)
+            content.Size = UDim2.new(1, -sidebarWidth, 1, -D.HeaderHeight)
+        end
+
+        if brandTitle then
+            brandTitle.Position = compactMode and UDim2.fromOffset(16, 7) or UDim2.fromOffset(22, 8)
+            brandTitle.Size = compactMode and UDim2.fromOffset(132, 27) or UDim2.fromOffset(240, 27)
+            brandTitle.TextSize = compactMode and 17 or 21
+        end
+        if brandSubtitle then
+            brandSubtitle.Position = compactMode and UDim2.fromOffset(16, 37) or UDim2.fromOffset(93, 37)
+            brandSubtitle.Size = compactMode and UDim2.fromOffset(190, 16) or UDim2.fromOffset(190, 16)
+        end
+        if statusDot then statusDot.Visible = not compactMode end
+        if statusText then statusText.Visible = not compactMode end
+
+        for _, refs in pairs(navRefs) do
+            if refs.Icon then
+                refs.Icon.Position = compactMode and UDim2.new(0.5, -12, 0, 0) or UDim2.fromOffset(13, 0)
+            end
+            if refs.Label then refs.Label.Visible = not compactMode end
+        end
     end
     local viewportConnection
     local cameraConnection
@@ -231,6 +262,7 @@ function UI.Mount(config)
         if Workspace.CurrentCamera then
             viewportConnection = Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
         end
+        if sidebar and content then resize() end
     end
     cameraConnection = Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(bindCamera)
     bindCamera()
@@ -245,7 +277,7 @@ function UI.Mount(config)
         Rotation = 0
     }, header)
 
-    label(header, "AETHER X", 21, UDim2.fromOffset(22, 8), UDim2.fromOffset(240, 27), Theme.Font.Heading)
+    brandTitle = label(header, "AETHER X", 21, UDim2.fromOffset(22, 8), UDim2.fromOffset(240, 27), Theme.Font.Heading)
     local accent = make("Frame", {
         Position = UDim2.fromOffset(23, 43),
         Size = UDim2.fromOffset(58, 3),
@@ -254,7 +286,7 @@ function UI.Mount(config)
     }, header)
     round(accent, 3)
     make("UIGradient", {Color = ColorSequence.new(C.Violet, C.Cyan)}, accent)
-    label(header, "BLOX FRUITS  •  v0.2.0", 9, UDim2.fromOffset(93, 37), UDim2.fromOffset(190, 16), Theme.Font.Medium, C.Muted)
+    brandSubtitle = label(header, "BLOX FRUITS  •  v0.2.0", 9, UDim2.fromOffset(93, 37), UDim2.fromOffset(190, 16), Theme.Font.Medium, C.Muted)
 
     local statusDot = make("Frame", {
         AnchorPoint = Vector2.new(1, 0.5),
@@ -264,7 +296,7 @@ function UI.Mount(config)
         BorderSizePixel = 0
     }, header)
     round(statusDot, 5)
-    label(header, "SYSTEM READY", 9, UDim2.new(1, -83, 0.5, -9), UDim2.fromOffset(75, 18), Theme.Font.Medium, C.Muted)
+    statusText = label(header, "SYSTEM READY", 9, UDim2.new(1, -83, 0.5, -9), UDim2.fromOffset(75, 18), Theme.Font.Medium, C.Muted)
 
     local close = make("TextButton", {
         AnchorPoint = Vector2.new(1, 0.5),
@@ -306,7 +338,7 @@ function UI.Mount(config)
 
     local pageNames = {"Overview", "Fruits", "Farm", "Settings", "Diagnostics"}
     local icons = {Overview = "⌂", Fruits = "✦", Farm = "⚔", Settings = "⚙", Diagnostics = "⌁"}
-    local pages, navRefs = {}, {}
+    local pages = {}
     local currentPage = "Overview"
 
     for index, name in ipairs(pageNames) do
@@ -327,9 +359,9 @@ function UI.Mount(config)
             BorderSizePixel = 0
         }, nav)
         round(indicator, 3)
-        label(nav, icons[name], 15, UDim2.fromOffset(13, 0), UDim2.fromOffset(24, 43), Theme.Font.Strong, C.Muted)
+        local iconLabel = label(nav, icons[name], 15, UDim2.fromOffset(13, 0), UDim2.fromOffset(24, 43), Theme.Font.Strong, C.Muted)
         local textLabel = label(nav, name, 11, UDim2.fromOffset(44, 0), UDim2.new(1, -50, 1, 0), Theme.Font.Medium, C.Muted)
-        navRefs[name] = {Button = nav, Indicator = indicator, Label = textLabel}
+        navRefs[name] = {Button = nav, Indicator = indicator, Label = textLabel, Icon = iconLabel}
         nav.Activated:Connect(function()
             currentPage = name
             for pageName, page in pairs(pages) do page.Visible = pageName == name end
