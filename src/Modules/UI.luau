@@ -109,8 +109,10 @@ end
 
 local function addToggle(parent, title, description, initial, callback)
     local box = card(parent, 72)
-    label(box, title, 12, UDim2.fromOffset(15, 10), UDim2.new(1, -100, 0, 20), Theme.Font.Strong)
-    label(box, description, 9, UDim2.fromOffset(15, 35), UDim2.new(1, -105, 0, 18), Theme.Font.Body, C.Muted)
+    local titleLabel = label(box, title, 12, UDim2.fromOffset(15, 10), UDim2.new(1, -100, 0, 20), Theme.Font.Strong)
+    local descriptionLabel = label(box, description, 9, UDim2.fromOffset(15, 35), UDim2.new(1, -105, 0, 18), Theme.Font.Body, C.Muted)
+    descriptionLabel.TextWrapped = true
+    descriptionLabel.TextYAlignment = Enum.TextYAlignment.Top
 
     local track = make("TextButton", {
         AnchorPoint = Vector2.new(1, 0.5),
@@ -128,6 +130,26 @@ local function addToggle(parent, title, description, initial, callback)
         BorderSizePixel = 0
     }, track)
     round(knob, 12)
+
+    local function updateLayout()
+        if box.AbsoluteSize.X < 280 then
+            box.Size = UDim2.new(1, 0, 0, 104)
+            titleLabel.Size = UDim2.new(1, -30, 0, 20)
+            descriptionLabel.Position = UDim2.fromOffset(15, 34)
+            descriptionLabel.Size = UDim2.new(1, -30, 0, 32)
+            track.AnchorPoint = Vector2.new(1, 1)
+            track.Position = UDim2.new(1, -15, 1, -10)
+        else
+            box.Size = UDim2.new(1, 0, 0, 72)
+            titleLabel.Size = UDim2.new(1, -100, 0, 20)
+            descriptionLabel.Position = UDim2.fromOffset(15, 35)
+            descriptionLabel.Size = UDim2.new(1, -105, 0, 18)
+            track.AnchorPoint = Vector2.new(1, 0.5)
+            track.Position = UDim2.new(1, -15, 0.5, 0)
+        end
+    end
+    box:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateLayout)
+    updateLayout()
 
     local value = initial == true
     local function setValue(nextValue)
