@@ -18,6 +18,8 @@ A modular Luau client-side hub project with a mobile-first interface.
 
 - Navigation includes hover feedback and a short slide-in transition when switching pages.
 - The main window can be dragged with touch or mouse and is clamped to the visible viewport.
+- Page content uses tighter mobile padding, scrollable layouts, and larger action touch targets.
+- Settings includes a real `Reduce animations` preference that disables interface tweens.
 - The header status reports `UI ONLINE`; it does not imply that gameplay automation modules are complete.
 - `default.project.json` — Rojo project mapping
 - `rokit.toml` — pinned Rojo toolchain
