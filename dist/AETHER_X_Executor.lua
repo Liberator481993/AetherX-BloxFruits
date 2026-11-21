@@ -2,15 +2,22 @@
 -- Generated from modular project sources. Includes UI and Fruit ESP.
 -- For Delta Android / Arceus X.
 
+-- Catch failures in module setup too, not only UI.Mount.
+local __AETHER_BOOT_OK, __AETHER_BOOT_ERR = pcall(function()
 if _G.__AETHER_X_RUNNING then
-    pcall(function()
-        if _G.__AETHER_X_SCREEN and _G.__AETHER_X_SCREEN.Parent then
-            _G.__AETHER_X_SCREEN.Enabled = true
-        end
-    end)
-    return
+    local existing = _G.__AETHER_X_SCREEN
+    if existing and existing.Parent then
+        pcall(function()
+            existing.Enabled = true
+        end)
+        return
+    end
+    -- Recover from a stale flag left by an interrupted previous execution.
+    _G.__AETHER_X_RUNNING = nil
+    _G.__AETHER_X_SCREEN = nil
 end
 _G.__AETHER_X_RUNNING = true
+print("[AETHER X] boot sequence started")
 
 local function safeNotify(title, message)
     pcall(function()
@@ -1005,3 +1012,19 @@ if not ok then
     error(err)
 end
 safeNotify("AETHER X", "Executor build loaded. Open the AX launcher.")
+print("[AETHER X] UI mounted successfully")
+end)
+
+if not __AETHER_BOOT_OK then
+    _G.__AETHER_X_RUNNING = nil
+    _G.__AETHER_X_SCREEN = nil
+    warn("[AETHER X] BOOT ERROR: " .. tostring(__AETHER_BOOT_ERR))
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "AETHER X • BOOT ERROR",
+            Text = string.sub(tostring(__AETHER_BOOT_ERR), 1, 180),
+            Duration = 8
+        })
+    end)
+    error(__AETHER_BOOT_ERR)
+end
