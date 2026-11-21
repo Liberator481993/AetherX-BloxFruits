@@ -288,7 +288,7 @@ function UI.Mount(config)
     make("UIGradient", {Color = ColorSequence.new(C.Violet, C.Cyan)}, accent)
     brandSubtitle = label(header, "BLOX FRUITS  •  v0.2.0", 9, UDim2.fromOffset(93, 37), UDim2.fromOffset(190, 16), Theme.Font.Medium, C.Muted)
 
-    local statusDot = make("Frame", {
+    statusDot = make("Frame", {
         AnchorPoint = Vector2.new(1, 0.5),
         Position = UDim2.new(1, -91, 0.5, 0),
         Size = UDim2.fromOffset(6, 6),
@@ -373,6 +373,9 @@ function UI.Mount(config)
             end
         end)
     end
+
+    -- Apply the current viewport mode after all responsive references exist.
+    resize()
 
     -- Overview page
     local home = pages.Overview
