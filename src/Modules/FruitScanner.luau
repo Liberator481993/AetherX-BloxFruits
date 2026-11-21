@@ -178,9 +178,20 @@ function FruitScanner:SetEnabled(enabled)
         end
         if not self.RemovingConnection then
             self.RemovingConnection = Workspace.DescendantRemoving:Connect(function(instance)
-                if instance:IsA("Model") then
-                    self:_remove(instance)
+                if not instance:IsA("Model") then return end
+
+                local normalized = normalizeName(instance.Name)
+                if normalized ~= "fruit" and FRUIT_NAMES[normalized] ~= true then
+                    return
                 end
+
+                -- A named fruit model may live inside a generic "Fruit" wrapper.
+                -- Remove the wrapper marker too when the inner model is streamed out.
+                local candidate = findFruitCandidate(instance)
+                if candidate then
+                    self:_remove(candidate)
+                end
+                self:_remove(instance)
             end)
         end
         return self:Scan()
