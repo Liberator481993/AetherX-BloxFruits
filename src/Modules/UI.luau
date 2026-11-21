@@ -34,6 +34,15 @@ local function animate(object, duration, properties)
     return tween
 end
 
+local function bindHover(button, normalColor, hoverColor)
+    button.MouseEnter:Connect(function()
+        animate(button, 0.12, {BackgroundColor3 = hoverColor})
+    end)
+    button.MouseLeave:Connect(function()
+        animate(button, 0.12, {BackgroundColor3 = normalColor})
+    end)
+end
+
 local function label(parent, text, size, position, dimensions, font, color)
     return make("TextLabel", {
         BackgroundTransparency = 1,
@@ -181,6 +190,7 @@ local function addAction(parent, title, description, buttonText, callback)
     }, box)
     round(button, 9)
     outline(button, C.Violet, 0.35)
+    bindHover(button, C.SurfaceRaised, C.SurfaceHover)
 
     local function updateLayout()
         if box.AbsoluteSize.X < 280 then
@@ -359,6 +369,7 @@ function UI.Mount(config)
         AutoButtonColor = false
     }, header)
     round(close, 10)
+    bindHover(close, C.SurfaceRaised, C.SurfaceHover)
 
     sidebar = make("Frame", {
         Position = UDim2.fromOffset(0, D.HeaderHeight),
@@ -411,14 +422,33 @@ function UI.Mount(config)
         local iconLabel = label(nav, icons[name], 15, UDim2.fromOffset(13, 0), UDim2.fromOffset(24, 43), Theme.Font.Strong, C.Muted)
         local textLabel = label(nav, name, 11, UDim2.fromOffset(44, 0), UDim2.new(1, -50, 1, 0), Theme.Font.Medium, C.Muted)
         navRefs[name] = {Button = nav, Indicator = indicator, Label = textLabel, Icon = iconLabel}
+        nav.MouseEnter:Connect(function()
+            if currentPage ~= name then
+                animate(nav, 0.12, {BackgroundColor3 = C.SurfaceHover})
+            end
+        end)
+        nav.MouseLeave:Connect(function()
+            if currentPage ~= name then
+                animate(nav, 0.12, {BackgroundColor3 = C.Surface})
+            end
+        end)
         nav.Activated:Connect(function()
+            if currentPage == name then return end
             currentPage = name
-            for pageName, page in pairs(pages) do page.Visible = pageName == name end
+            for pageName, page in pairs(pages) do
+                local selected = pageName == name
+                page.Visible = selected
+                if selected then
+                    page.Position = UDim2.fromOffset(9, 0)
+                    animate(page, 0.16, {Position = UDim2.fromOffset(0, 0)})
+                end
+            end
             for navName, refs in pairs(navRefs) do
                 local selected = navName == name
                 animate(refs.Button, 0.16, {BackgroundColor3 = selected and C.SurfaceRaised or C.Surface})
                 animate(refs.Indicator, 0.16, {BackgroundTransparency = selected and 0 or 1})
                 refs.Label.TextColor3 = selected and C.Text or C.Muted
+                refs.Icon.TextColor3 = selected and C.Cyan or C.Muted
             end
         end)
     end
@@ -497,6 +527,13 @@ function UI.Mount(config)
     local dragging, dragInput, dragStart, startPosition = false, nil, nil, nil
     header.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            local closePosition = close.AbsolutePosition
+            local closeSize = close.AbsoluteSize
+            local overClose = input.Position.X >= closePosition.X
+                and input.Position.X <= closePosition.X + closeSize.X
+                and input.Position.Y >= closePosition.Y
+                and input.Position.Y <= closePosition.Y + closeSize.Y
+            if overClose then return end
             dragging = true
             dragStart = input.Position
             startPosition = main.Position
@@ -513,7 +550,22 @@ function UI.Mount(config)
     local inputChangedConnection = UserInputService.InputChanged:Connect(function(input)
         if dragging and (input == dragInput or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
-            main.Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + delta.X, startPosition.Y.Scale, startPosition.Y.Offset + delta.Y)
+            local camera = Workspace.CurrentCamera
+            local viewport = camera and camera.ViewportSize
+            if not viewport then return end
+
+            local halfWidth = main.AbsoluteSize.X / 2
+            local halfHeight = main.AbsoluteSize.Y / 2
+            local minX = -viewport.X / 2 + halfWidth + 8
+            local maxX = viewport.X / 2 - halfWidth - 8
+            local minY = -viewport.Y / 2 + halfHeight + 8
+            local maxY = viewport.Y / 2 - halfHeight - 8
+            if minX > maxX then minX, maxX = 0, 0 end
+            if minY > maxY then minY, maxY = 0, 0 end
+
+            local nextX = math.clamp(startPosition.X.Offset + delta.X, minX, maxX)
+            local nextY = math.clamp(startPosition.Y.Offset + delta.Y, minY, maxY)
+            main.Position = UDim2.new(startPosition.X.Scale, nextX, startPosition.Y.Scale, nextY)
         end
     end)
 
