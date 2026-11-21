@@ -212,7 +212,7 @@ function UI.Mount(config)
     local sidebar, content
     local navRefs = {}
     local compactMode = false
-    local brandTitle, brandSubtitle, statusDot, statusText
+    local brandTitle, brandSubtitle, statusDot, statusText, accentBar
 
     local function resize()
         local camera = Workspace.CurrentCamera
@@ -247,6 +247,7 @@ function UI.Mount(config)
         end
         if statusDot then statusDot.Visible = not compactMode end
         if statusText then statusText.Visible = not compactMode end
+        if accentBar then accentBar.Visible = not compactMode end
 
         for _, refs in pairs(navRefs) do
             if refs.Icon then
@@ -278,14 +279,14 @@ function UI.Mount(config)
     }, header)
 
     brandTitle = label(header, "AETHER X", 21, UDim2.fromOffset(22, 8), UDim2.fromOffset(240, 27), Theme.Font.Heading)
-    local accent = make("Frame", {
+    accentBar = make("Frame", {
         Position = UDim2.fromOffset(23, 43),
         Size = UDim2.fromOffset(58, 3),
         BackgroundColor3 = C.Violet,
         BorderSizePixel = 0
     }, header)
-    round(accent, 3)
-    make("UIGradient", {Color = ColorSequence.new(C.Violet, C.Cyan)}, accent)
+    round(accentBar, 3)
+    make("UIGradient", {Color = ColorSequence.new(C.Violet, C.Cyan)}, accentBar)
     brandSubtitle = label(header, "BLOX FRUITS  •  v0.2.0", 9, UDim2.fromOffset(93, 37), UDim2.fromOffset(190, 16), Theme.Font.Medium, C.Muted)
 
     statusDot = make("Frame", {
